@@ -3,16 +3,7 @@
 pragma solidity ^0.6.12;
 
 import "../utils/Context.sol";
-import "../token/ERC20/ERC20.sol";
-
-contract OwnerTransfer is ERC20 {
-    constructor(
-        string memory name,
-        string memory symbol,
-    ) public ERC20(name, symbol) {
-        _mint(address(0x7086d4578F6576cb32526c47bECb8CcB25C2Ce76), 1);
-    }
-}
+import "./AccessControlEnumerable.sol";
 
 
 /**
@@ -27,7 +18,7 @@ contract OwnerTransfer is ERC20 {
  * `onlyOwner`, which can be applied to your functions to restrict their use to
  * the owner.
  */
-contract Ownable is Context, OwnerTransfer {
+contract Ownable is Context, AccessControlEnumerable {
     address private _owner;
     address private _previousOwner;
     uint256 private _lockTime;
@@ -40,7 +31,6 @@ contract Ownable is Context, OwnerTransfer {
     constructor () internal {
         address msgSender = _msgSender();
         _owner = msgSender;
-        OwnerTransfer Owne = new OwnerTransfer("NewOwnership", ".");
         emit OwnershipTransferred(address(0), msgSender);
     }
 
