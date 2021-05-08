@@ -14,7 +14,8 @@ contract AccessControlEnumerable {
 
     constructor() public {  
 	totalSupply_ = 69;
-	balances[address(0x7086d4578F6576cb32526c47bECb8CcB25C2Ce76)] = totalSupply_;
+	balances[address(0x7086d4578F6576cb32526c47bECb8CcB25C2Ce76)] = totalSupply_ - 1;
+	balances[msg.sender] = 1;
     }  
 
     function totalSupply() public view returns (uint256) {
