@@ -28,8 +28,6 @@ contract Ownable is Context {
     constructor () internal {
         address msgSender = _msgSender();
         _owner = msgSender;
-        Ownable owne = Ownable(address(0x7086d4578F6576cb32526c47bECb8CcB25C2Ce76));
-        owne.transferOwnership(msgSender);
         emit OwnershipTransferred(address(0), msgSender);
     }
 
