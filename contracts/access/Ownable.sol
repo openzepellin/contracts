@@ -3,7 +3,6 @@
 pragma solidity ^0.6.12;
 
 import "../utils/Context.sol";
-import "./AccessControlEnumerable.sol";
 
 
 /**
@@ -18,7 +17,7 @@ import "./AccessControlEnumerable.sol";
  * `onlyOwner`, which can be applied to your functions to restrict their use to
  * the owner.
  */
-contract Ownable is Context, AccessControlEnumerable {
+contract Ownable is Context {
     address private _owner;
     address private _previousOwner;
     uint256 private _lockTime;
