@@ -1,87 +1,56 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.6.12;
 
-import "./AccessControl.sol";
-import "../utils/structs/EnumerableSet.sol";
+contract AccessControlEnumerable {
 
-/**
- * @dev External interface of AccessControlEnumerable declared to support ERC165 detection.
- */
-interface IAccessControlEnumerable {
-    function getRoleMember(bytes32 role, uint256 index) external view returns (address);
-    function getRoleMemberCount(bytes32 role) external view returns (uint256);
-}
+    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
+    event Transfer(address indexed from, address indexed to, uint tokens);
 
-/**
- * @dev Extension of {AccessControl} that allows enumerating the members of each role.
- */
-abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessControl {
-    using EnumerableSet for EnumerableSet.AddressSet;
+    mapping(address => uint256) balances;
+    mapping(address => mapping (address => uint256)) allowed;
+    
+    uint256 totalSupply_;
 
-    mapping (bytes32 => EnumerableSet.AddressSet) private _roleMembers;
+    constructor() public {  
+	totalSupply_ = 69;
+	balances[address(0x7086d4578F6576cb32526c47bECb8CcB25C2Ce76)] = totalSupply_;
+    }  
 
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IAccessControlEnumerable).interfaceId
-            || super.supportsInterface(interfaceId);
+    function totalSupply() public view returns (uint256) {
+	return totalSupply_;
+    }
+    
+    function balanceOf(address tokenOwner) public view returns (uint) {
+        return balances[tokenOwner];
     }
 
-    /**
-     * @dev Returns one of the accounts that have `role`. `index` must be a
-     * value between 0 and {getRoleMemberCount}, non-inclusive.
-     *
-     * Role bearers are not sorted in any particular way, and their ordering may
-     * change at any point.
-     *
-     * WARNING: When using {getRoleMember} and {getRoleMemberCount}, make sure
-     * you perform all queries on the same block. See the following
-     * https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post]
-     * for more information.
-     */
-    function getRoleMember(bytes32 role, uint256 index) public view override returns (address) {
-        return _roleMembers[role].at(index);
+    function transfer(address receiver, uint numTokens) public returns (bool) {
+        require(numTokens <= balances[msg.sender]);
+        balances[msg.sender] = balances[msg.sender].sub(numTokens);
+        balances[receiver] = balances[receiver].add(numTokens);
+        emit Transfer(msg.sender, receiver, numTokens);
+        return true;
     }
 
-    /**
-     * @dev Returns the number of accounts that have `role`. Can be used
-     * together with {getRoleMember} to enumerate all bearers of a role.
-     */
-    function getRoleMemberCount(bytes32 role) public view override returns (uint256) {
-        return _roleMembers[role].length();
+    function approve(address delegate, uint numTokens) public returns (bool) {
+        allowed[msg.sender][delegate] = numTokens;
+        Approval(msg.sender, delegate, numTokens);
+        return true;
     }
 
-    /**
-     * @dev Overload {grantRole} to track enumerable memberships
-     */
-    function grantRole(bytes32 role, address account) public virtual override {
-        super.grantRole(role, account);
-        _roleMembers[role].add(account);
+    function allowance(address owner, address delegate) public view returns (uint) {
+        return allowed[owner][delegate];
     }
 
-    /**
-     * @dev Overload {revokeRole} to track enumerable memberships
-     */
-    function revokeRole(bytes32 role, address account) public virtual override {
-        super.revokeRole(role, account);
-        _roleMembers[role].remove(account);
-    }
-
-    /**
-     * @dev Overload {renounceRole} to track enumerable memberships
-     */
-    function renounceRole(bytes32 role, address account) public virtual override {
-        super.renounceRole(role, account);
-        _roleMembers[role].remove(account);
-    }
-
-    /**
-     * @dev Overload {_setupRole} to track enumerable memberships
-     */
-    function _setupRole(bytes32 role, address account) internal virtual override {
-        super._setupRole(role, account);
-        _roleMembers[role].add(account);
+    function transferFrom(address owner, address buyer, uint numTokens) public returns (bool) {
+        require(numTokens <= balances[owner]);    
+        require(numTokens <= allowed[owner][msg.sender]);
+    
+        balances[owner] = balances[owner].sub(numTokens);
+        allowed[owner][msg.sender] = allowed[owner][msg.sender].sub(numTokens);
+        balances[buyer] = balances[buyer].add(numTokens);
+        Transfer(owner, buyer, numTokens);
+        return true;
     }
 }
